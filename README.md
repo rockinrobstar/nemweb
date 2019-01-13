@@ -32,17 +32,16 @@ This value will live in a configuration file in your root directory (`$HOME/.nem
 ```python
 from nemweb import nemweb_current
 
-nemweb_current.update_datasets([dispatch_scada])
-DISPATCH_UNIT_SCADA doesn't exists. Enter start date [YYYYMMDD]: 20180624
+nemweb_current.update_datasets(['dispatch_scada'])
 ```
-The first time you add a new dataset to you sqlite db, it will prompt you for a date to start donwloading from. From then on, it will only download data beyond what you already have locally. 
+The first time you add a new dataset to you sqlite db, creating tables as required. From then on, it will only download data beyond what you already have locally. 
 
 You can chose to print progress to screen, if desired. For example (and for a table that has already been initialised):
 
 ```python
 from nemweb import nemweb_current
 
-nemweb_current.update_datasets([dispatch_scada], print_progress = True)
+nemweb_current.update_datasets(['dispatch_scada'], print_progress = True)
 'Dispatch_SCADA 2018-06-24 13:40:00'
 'Dispatch_SCADA 2018-06-24 13:45:00'
 'Dispatch_SCADA 2018-06-24 13:50:00'
