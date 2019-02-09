@@ -33,7 +33,8 @@ def nemfile_reader(nemfile_object, table=None, dtype=None):
     """
     Returns a dict containing a pandas dataframe each table in a nemfile.
     The fileobject needs to be unzipped csv (nemfile), and can be either a file or an
-    an in stream fileobject.
+    an in stream fileobject. This method processes line by line to allow for csv files
+    that contain multiple tables.
     """
     table_dict = {}
     tablesource = None
@@ -73,3 +74,16 @@ def nemzip_reader(nemzip_object):
             return nemfile_reader(nemfile_object)
         else:
             raise Exception('More than one file in zipfile')
+
+def nemxls_reader(nemfile_object, table=None, sheet_name="Test"):
+    """
+    Returns a dict containing a pandas dataframe for a sheet within an Excel file.
+    If sheet_name is not specified it will just return the first sheet in the file.
+    """
+    with pd.ExcelFile(nemfile_object) as xls:
+        try:
+            sheet_index = xls.sheet_names.index(sheet_name)
+        except ValueError:
+            sheet_index = 0
+    return {table: pd.read_excel(xls, sheet_name=sheet_index)}
+            
