@@ -39,22 +39,27 @@ def nemfile_reader(nemfile_object, table=None, dtype=None):
     table_dict = {}
     tablesource = None
     for line in nemfile_object.readlines():
-        print(".", end='')
         rows = line.decode().split(',')
-        if (rows[0] == "C"): #nem csv file, first line
+        if rows[0] == "C": #nem csv file, first line
             tablesource = "nem"
             table = "{0}_{1}".format(rows[1], rows[2])
+            print("!", end='')
         elif tablesource == "nem": #nem csv file, other lines
             if rows[0] == "I": #  new table
-                table_dict[table] = line           
+                table = "{0}_{1}".format(rows[1], rows[2])
+                table_dict[table] = line
+                print("!", end='')
             elif rows[0] == "D": #  append data to each table
                 table_dict[table] += line
-        elif rows[0] == "Trading Date" : #wa csv file, first line
+                print(".", end='')
+        elif rows[0] == "Trading Date" or rows[0] == "Participant Code": #wa csv file, first line
             tablesource = "wa"
             table = table
             table_dict[table] = line
+            print("!", end='')
         elif tablesource == "wa": #wa csv subsequent lines
             table_dict[table] += line
+            print(".", end='')
     return {table: pd.read_csv(BytesIO(table_dict[table]), dtype=dtype)
             for table in table_dict}
 
