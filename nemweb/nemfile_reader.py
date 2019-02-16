@@ -29,26 +29,38 @@ def zip_streams(fileobject):
             yield filename, zipfile.extract_stream(filename)
 
 
-def nemfile_reader(nemfile_object):
+def nemfile_reader(nemfile_object, table=None, dtype=None):
     """
     Returns a dict containing a pandas dataframe each table in a nemfile.
     The fileobject needs to be unzipped csv (nemfile), and can be either a file or an
-    an in stream fileobject.
+    an in stream fileobject. This method processes line by line to allow for csv files
+    that contain multiple tables.
     """
     table_dict = {}
+    tablesource = None
     for line in nemfile_object.readlines():
         rows = line.decode().split(',')
-        table = "{0}_{1}".format(rows[1], rows[2])
-
-        #  new table
-        if rows[0] == "I":
+        if rows[0] == "C": #nem csv file, first line
+            tablesource = "nem"
+            table = "{0}_{1}".format(rows[1], rows[2])
+            print("!", end='')
+        elif tablesource == "nem": #nem csv file, other lines
+            if rows[0] == "I": #  new table
+                table = "{0}_{1}".format(rows[1], rows[2])
+                table_dict[table] = line
+                print("!", end='')
+            elif rows[0] == "D": #  append data to each table
+                table_dict[table] += line
+                print(".", end='')
+        elif rows[0] == "Trading Date" or rows[0] == "Participant Code": #wa csv file, first line
+            tablesource = "wa"
+            table = table
             table_dict[table] = line
-
-        #  append data to each table
-        elif rows[0] == "D":
+            print("!", end='')
+        elif tablesource == "wa": #wa csv subsequent lines
             table_dict[table] += line
-
-    return {table: pd.read_csv(BytesIO(table_dict[table]))
+            print(".", end='')
+    return {table: pd.read_csv(BytesIO(table_dict[table]), dtype=dtype)
             for table in table_dict}
 
 
@@ -67,3 +79,16 @@ def nemzip_reader(nemzip_object):
             return nemfile_reader(nemfile_object)
         else:
             raise Exception('More than one file in zipfile')
+
+def nemxls_reader(nemfile_object, table=None, sheet_name="Test"):
+    """
+    Returns a dict containing a pandas dataframe for a sheet within an Excel file.
+    If sheet_name is not specified it will just return the first sheet in the file.
+    """
+    with pd.ExcelFile(nemfile_object) as xls:
+        try:
+            sheet_index = xls.sheet_names.index(sheet_name)
+        except ValueError:
+            sheet_index = 0
+    return {table: pd.read_excel(xls, sheet_name=sheet_index)}
+            
