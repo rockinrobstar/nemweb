@@ -15,15 +15,22 @@ def create_config():
     except (OSError, configparser.ParsingError):
         print("failed to read existing config file: %s" % fileName)
     if not config.has_section('local_settings'):
-            config.add_section('local_settings') 
-            print('added local_settings')
+        config.add_section('local_settings') 
+        print('added local_settings')
     try:
         old_sqlite_db_dir = config.get("local_settings","sqlite_dir")
     except configparser.NoOptionError:
-        old_sqlite_db_dir = os.path.expanduser("~/NEMData/")
+        old_sqlite_db_dir = os.path.expanduser("~/NEMData")
     sqlite_db_dir = input("Enter sqlite directory (abs path)[" + old_sqlite_db_dir + "]:")
     sqlite_db_dir = sqlite_db_dir or old_sqlite_db_dir
     print("set sqlite_dir to %s" % sqlite_db_dir)
+    try:
+        old_file_cache_dir = config.get("local_settings","file_cache")
+    except configparser.NoOptionError:
+        old_file_cache_dir = os.path.expanduser(sqlite_db_dir + "/file_cache")
+    file_cache_dir = input("Enter local file cache directory (abs path)[" + old_file_cache_dir + "]:")
+    file_cache_dir = file_cache_dir or old_file_cache_dir
+    print("set file_cache_dir to %s" % file_cache_dir)
     try:
         old_start_date = config.get("local_settings","start_date")
     except configparser.NoOptionError:
@@ -31,7 +38,8 @@ def create_config():
     start_date = input("Enter start date to begin down loading from (YYYYMMDD):[" + old_start_date + "]:")
     start_date = start_date or old_start_date
     print("set start_date to %s" % start_date)
-    config.set("local_settings","sqlite_dir",sqlite_db_dir)
+    config.set("local_settings","sqlite_dir", sqlite_db_dir)
+    config.set("local_settings","file_cache", file_cache_dir)
     config.set("local_settings","start_date", start_date)
     with open(os.path.join(fileName), "w") as cfgfile:
         config.write(cfgfile)

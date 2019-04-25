@@ -82,7 +82,8 @@ class CurrentFileHandler:
                     print("Archive:", dataset.dataset_name, file_datetime)
                 for filename, innerfile_zip in nemfile_reader.zip_streams(zip_bytes):
                     for match2 in regex_L2.finditer(filename):
-                        file_datetime2 = datetime.datetime.strptime(match2.group(1), dataset.datetime_format)
+                        file_datetime2 = datetime.datetime.strptime(match2.group(1), 
+                        dataset.datetime_format)
                         innerfile = nemfile_reader.nemzip_reader(innerfile_zip)
                         if print_progress:
                             print(innerfile, file_datetime2)

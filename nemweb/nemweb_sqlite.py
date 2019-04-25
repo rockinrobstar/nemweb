@@ -41,7 +41,7 @@ def table_latest_record(
         try:
             latest_date = datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
         except ValueError:
-            print("Can't read latest date in db")
+            print("Can't read latest date in db")   
     return latest_date
 
 
@@ -59,13 +59,15 @@ def start_from(
         date = table_latest_record(
             table_name, db_name=db_name, timestamp_col=timestamp_col
         )
-
+        return date
     except sqlite3.OperationalError as error:
         msg = error.args[0].split(":")
         if msg[0] == 'no such table':
-            date_str = os.path.join(CONFIG['local_settings']['start_date']) # not safe
-            date = datetime.datetime.strptime(date_str, "%Y%m%d")
+            pass
         else:
             raise error
-
+    except UnboundLocalError:
+        pass    
+    date_str = os.path.join(CONFIG['local_settings']['start_date']) # not safe
+    date = datetime.datetime.strptime(date_str, "%Y%m%d")
     return date

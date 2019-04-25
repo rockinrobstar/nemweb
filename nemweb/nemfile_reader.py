@@ -38,7 +38,8 @@ def nemfile_reader(nemfile_object, table=None, dtype=None):
     """
     table_dict = {}
     tablesource = None
-    for line in nemfile_object.readlines():
+    i = 0
+    for line in nemfile_object:
         rows = line.decode().split(',')
         if rows[0] == "C": #nem csv file, first line
             tablesource = "nem"
@@ -59,7 +60,9 @@ def nemfile_reader(nemfile_object, table=None, dtype=None):
             print("!", end='')
         elif tablesource == "wa": #wa csv subsequent lines
             table_dict[table] += line
-            print(".", end='')
+            if i%1000 == 0:
+                print(".", end='')
+        i += 1
     return {table: pd.read_csv(BytesIO(table_dict[table]), dtype=dtype)
             for table in table_dict}
 

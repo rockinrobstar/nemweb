@@ -13,13 +13,13 @@ Datasets included from 'CURRENT' index page:
 - ROOFTOP_PV/ACTUAL
 """
 
-from io import BytesIO
+#from io import BytesIO
 import datetime
 import re
 from collections import namedtuple
 import requests
 import numpy as np
-from nemweb import nemfile_reader, nemweb_sqlite
+from nemweb import nemfile_reader, nemweb_sqlite, nemweb_filehandler
 
 
 class CurrentFileHandler:
@@ -39,6 +39,7 @@ class CurrentFileHandler:
     def __init__(self):
         self.base_url = "http://data.wa.aemo.com.au"
         self.section = "public/public-data/datafiles"
+        self.local_cache_id = "AEMO_WA"
 
     def update_data(
             self,
@@ -69,20 +70,21 @@ class CurrentFileHandler:
         for match in regex.finditer(page.text):
             file_datetime = datetime.datetime.strptime(match.group(1), dataset.datetime_format)
             if file_datetime > start_date:
-                nemfile = self.download(match.group(0), dataset.tables[0])
+                nemfile = self.download(file=match.group(0), table=dataset.tables[0])
                 if print_progress:
                     print(dataset.dataset_name, file_datetime)
                 for table in dataset.tables:
                     dataframe = nemfile[table].drop_duplicates().copy()
                     nemweb_sqlite.insert(dataframe, table, db_name)
             else:
-                print("%s before %s, Skipping" % (start_date, file_datetime))
+                print("DB/ini date {0} before file date {1}, Skipping".format(start_date, file_datetime))
 
-    def download(self, link, table=None):
-        """Dowloads nemweb zipfile from link into memory as a byteIO object.
+    def download(self, file, table):
+        """Dowloads nemweb file from link into memory as a byteIO object.
         nemfile object is returned from the byteIO object """
-        response = requests.get("{0}{1}".format(self.base_url, link))
-        csv_strings = BytesIO(response.content)
+        #response = requests.get("{0}{1}".format(self.base_url, link))
+        #csv_strings = BytesIO(response.content)
+        csv_strings = nemweb_filehandler.get_file(self.base_url, self.local_cache_id, file)
         nemfile = nemfile_reader.nemfile_reader(csv_strings, table, DTYPES)
         return nemfile
 
