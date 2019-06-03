@@ -53,7 +53,8 @@ def nemfile_reader(nemfile_object, table=None, dtype=None):
             elif rows[0] == "D": #  append data to each table
                 table_dict[table] += line
                 print(".", end='')
-        elif rows[0] == "Trading Date" or rows[0] == "Participant Code": #wa csv file, first line
+        elif (rows[0] == "Trading Date" or rows[0] == "Participant Code" #wa csv file, first line
+              or rows[0] == "Facility Code"):
             tablesource = "wa"
             table = table
             table_dict[table] = line

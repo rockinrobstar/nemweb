@@ -9,8 +9,8 @@ import requests
 from nemweb import CONFIG
 
 def get_file(remote_url, local_cache_id, file, cache=True):
-    """Method the get a file of any type (as BytesIO) retrieving the local (cached) 
-    file first if it exists. Method checks the file size of the remote and if its 
+    """Method that gets a file of any type (as BytesIO), retrieving the local (cached) 
+    file first if it exists. Method checks the file size of the remote and if it's 
     bigger replaces the local file"""
     file_cache = CONFIG['local_settings']['file_cache']
     localfile_URL = ("{0}/{1}{2}").format(file_cache, local_cache_id, file)

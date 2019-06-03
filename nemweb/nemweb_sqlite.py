@@ -71,3 +71,25 @@ def start_from(
     date_str = os.path.join(CONFIG['local_settings']['start_date']) # not safe
     date = datetime.datetime.strptime(date_str, "%Y%m%d")
     return date
+
+def read_rows(query, db_name="nemweb_live.db"):
+    """
+    Reads query from a table (table name) in a sqlite3 database (db_name).
+    Database directory needs to be specfied in config.ini file
+    """
+    db_path = os.path.join(CONFIG['local_settings']['sqlite_dir'], db_name)
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(query)
+    return (cur.fetchall())
+
+def read_row(query, db_name="nemweb_live.db"):
+    """
+    Reads query from a table (table name) in a sqlite3 database (db_name).
+    Database directory needs to be specfied in config.ini file
+    """
+    db_path = os.path.join(CONFIG['local_settings']['sqlite_dir'], db_name)
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(query)
+    return (cur.fetchone())

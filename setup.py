@@ -1,6 +1,6 @@
 import os
 import configparser
-from setuptools import setup
+import setuptools 
 from setuptools.command.install import install
 from setuptools.command.develop import develop
 
@@ -62,7 +62,7 @@ class PostDevelopCommand(develop):
             print("failed to create config file")
         develop.run(self)
 
-setup(name='nemweb',
+setuptools.setup(name='nemweb',
       version='0.1',
       description="newweb file handler",
       long_description="python package to directly download and process AEMO files from http://www.nemweb.com.au/ and inserts tables into a local sqlite database.",
@@ -71,6 +71,7 @@ setup(name='nemweb',
       license='MIT',
       packages=['nemweb'],
       zip_safe=False,
+      include_package_data=True,
       install_requires=[
           'pandas',
           'requests'],
